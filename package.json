@@ -3,6 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "compile": "cd contracts && npx hardhat compile",
+    "test": "cd contracts && npx hardhat test",
+    "deploy:sepolia": "cd contracts && npx hardhat run scripts/deploy-worldcup.ts --network sepolia",
+    "deploy:local": "cd contracts && npx hardhat run scripts/deploy.ts --network localhost",
     "dev": "next dev --turbopack",
     "build": "next build --turbopack",
     "start": "next start",

@@ -1,422 +1,200 @@
-# Prediction Markets Platform
+# ⚽ WorldCupBetting — On-Chain Betting Smart Contract
 
-A decentralized prediction markets platform built on Ethereum, allowing users to create markets, place bets, trade positions, and earn reputation based on prediction accuracy.
-
-## 📚 Documentation
-
-Comprehensive documentation is available in the [docs/](docs/) folder:
-
-- **[01-overview.md](docs/01-overview.md)** - Project overview and features
-- **[02-smart-contracts.md](docs/02-smart-contracts.md)** - Smart contract documentation
-- **[03-market-lifecycle.md](docs/03-market-lifecycle.md)** - Market creation, betting, resolution
-- **[04-position-trading.md](docs/04-position-trading.md)** - P2P marketplace for trading positions
-- **[05-reputation-system.md](docs/05-reputation-system.md)** - Reputation tracking and scoring
-- **[06-frontend-architecture.md](docs/06-frontend-architecture.md)** - Next.js app structure
-- **[07-hooks-and-data.md](docs/07-hooks-and-data.md)** - React hooks for blockchain interaction
-- **[08-ui-components.md](docs/08-ui-components.md)** - Component library
-- **[09-development-setup.md](docs/09-development-setup.md)** - Development environment setup
-- **[10-deployment.md](docs/10-deployment.md)** - Deployment guide
-- **[11-user-flows.md](docs/11-user-flows.md)** - User journey documentation
-- **[12-api-reference.md](docs/12-api-reference.md)** - Complete API reference
-
-
-## 🚀 Features
-
-- **Binary & Multi-Outcome Markets**: Create markets with 2-10 possible outcomes
-- **Dual Token Support**: Support for both ETH and ERC20 tokens (USDC)
-- **Automated Market Maker (AMM)**: Dynamic share pricing based on liquidity
-- **Position Trading**: P2P marketplace to buy/sell positions before resolution
-- **Reputation System**: Track prediction accuracy (100-1000 points)
-
-
-## 🛠️ Tech Stack
-
-**Smart Contracts:**
-- Solidity 0.8.30
-- Hardhat
-- OpenZeppelin (ReentrancyGuard, IERC20)
-
-**Frontend:**
-- Next.js 15 (App Router)
-- React 19
-- TypeScript
-- Tailwind CSS
-- Wagmi v2 + Viem
-- RainbowKit
+> Solidity assessment: a fully implemented on-chain prediction market for World Cup match betting with multi-outcome markets, ERC-20 support, secondary position trading, and a reputation system.
 
 ---
 
-## 📦 Installation
+## 📋 Assessment Overview
+
+This repository contains the implementation of `WorldCupBetting.sol` — a smart contract that supports the full lifecycle of a decentralized betting market. The contract was built to satisfy **9 assessment scenarios (A–I)** covering market creation, resolution, fee accounting, access control, slippage protection, position trading, ERC-20 collateral, and claim idempotency.
+
+| Deliverable | Location |
+|---|---|
+| **Smart Contract** | [`WorldCupBetting.sol`](./WorldCupBetting.sol) (root copy) · [`contracts/contracts/WorldCupBetting.sol`](./contracts/contracts/WorldCupBetting.sol) |
+| **Test Suite** | [`contracts/test/WorldCupBetting.assessment.test.ts`](./contracts/test/WorldCupBetting.assessment.test.ts) |
+| **Implementation Notes** | [`IMPLEMENTATION_NOTES.md`](./IMPLEMENTATION_NOTES.md) |
+| **Architecture** | [`ARCHITECTURE.md`](./ARCHITECTURE.md) |
+| **Submission Checklist** | [`SUBMISSION.md`](./SUBMISSION.md) |
+
+---
+
+## ✅ Scenarios Implemented
+
+| # | Scenario | Description | Status |
+|---|---|---|---|
+| **A** | Group-stage 1X2 | Three-outcome market (Brazil/Draw/Serbia) — create, bet, resolve, verify status | ✅ Pass |
+| **B** | Knockout yes/no + fees | Two-sided ETH pool — winner receives net payout after 2% fee; owner withdraws fees | ✅ Pass |
+| **C** | Time gate (resolve) | Oracle cannot resolve before `resolutionTime` — reverts with `"Too early"` | ✅ Pass |
+| **D** | Access control | Random fan cannot resolve — reverts with `"Only arbitrator"` | ✅ Pass |
+| **E** | Time gate (bets) | No bets at or after resolution timestamp — reverts with `"Market closed"` | ✅ Pass |
+| **F** | Slippage guard | `placeBet` with `_minShares = MaxUint256` — reverts with `"Slippage exceeded"` | ✅ Pass |
+| **G** | Secondary market | List position → buy position → new owner claims winnings after resolution | ✅ Pass |
+| **H** | ERC-20 collateral | Full lifecycle (bet, resolve, claim) using a mock USDC token | ✅ Pass |
+| **I** | Loser settles + no double-claim | Losing side calls `claimWinnings` (records reputation, zero payout); second call reverts `"Already claimed"` | ✅ Pass |
+
+---
+
+## 🔗 Deployment
+
+| Detail | Value |
+|---|---|
+| **Network** | Sepolia Testnet |
+| **Contract Address** | `<PASTE_ADDRESS_HERE>` |
+| **Etherscan** | [`View on Etherscan`](https://sepolia.etherscan.io/address/<PASTE_ADDRESS_HERE>) |
+| **Solidity Version** | `0.8.30` |
+
+> ⚠️ Replace `<PASTE_ADDRESS_HERE>` with the actual deployed contract address.
+
+---
+
+## 🚀 Quick Start
 
 ### Prerequisites
 
-- Node.js 18+
-- npm or yarn
-- MetaMask or other Web3 wallet
+- **Node.js** ≥ 18
+- **npm** ≥ 9
 
-### Clone & Install
-
-```bash
-git clone <repository-url>
-cd prediction-markets
-npm install
-```
-
----
-
-## 🏠 Local Development (Hardhat Network)
-
-### Step 1: Start Local Blockchain
-
-Open **Terminal 1**:
+### Install & Test
 
 ```bash
+# Clone the repository
+git clone https://github.com/Radioactivegeek/worldcup-betting-assessment.git
+cd worldcup-betting-assessment
+
+# Install contract dependencies
 cd contracts
-npx hardhat node
-```
+npm install --legacy-peer-deps
 
-This starts a local Ethereum network at `http://127.0.0.1:8545` with 20 pre-funded accounts.
+# Compile
+npx hardhat compile
 
-**Save one of the private keys** shown in the output - you'll need it for MetaMask.
-
----
-
-### Step 2: Deploy Contracts
-
-Open **Terminal 2**:
-
-```bash
-cd contracts
-npx hardhat run scripts/deploy.ts --network localhost
-```
-
-**Expected Output:**
-```
-Deploying contracts...
-ReputationSystem deployed to: 0x5FbDB2315678afecb367f032d93F642f64180aa3
-PredictionMarket deployed to: 0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512
-Mock USDC deployed to: 0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0
-
-=== SAVE THESE ADDRESSES ===
-NEXT_PUBLIC_PREDICTION_MARKET_ADDRESS=0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512
-NEXT_PUBLIC_REPUTATION_SYSTEM_ADDRESS=0x5FbDB2315678afecb367f032d93F642f64180aa3
-NEXT_PUBLIC_MOCK_USDC_ADDRESS=0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0
-```
-
-**Copy these addresses** - you'll need them next.
-
----
-
-### Step 3: Configure Frontend
-
-Create `.env.local` in the **root folder**:
-
-```env
-# WalletConnect Project ID (get from https://cloud.walletconnect.com)
-NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID=your_project_id_here
-
-# Contract Addresses (from deploy output above)
-NEXT_PUBLIC_PREDICTION_MARKET_ADDRESS=0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512
-NEXT_PUBLIC_REPUTATION_SYSTEM_ADDRESS=0x5FbDB2315678afecb367f032d93F642f64180aa3
-NEXT_PUBLIC_MOCK_USDC_ADDRESS=0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0
-
-# Network (localhost)
-NEXT_PUBLIC_CHAIN_ID=31337
-NEXT_PUBLIC_RPC_URL=http://127.0.0.1:8545
-```
-
----
-
-### Step 4: Configure MetaMask for Localhost
-
-1. Open MetaMask
-2. Click network dropdown → **Add Network** → **Add a network manually**
-3. Enter:
-   - **Network Name**: Localhost 8545
-   - **RPC URL**: http://127.0.0.1:8545
-   - **Chain ID**: 31337
-   - **Currency Symbol**: ETH
-4. Click **Save**
-5. Import account using one of the private keys from Step 1:
-   - Click account icon → **Import Account**
-   - Paste private key
-   - You should see ~10,000 ETH balance
-
----
-
-### Step 5: Start Frontend
-
-Open **Terminal 3**:
-
-```bash
-npm run dev
-```
-
-Open [http://localhost:3000](http://localhost:3000)
-
----
-
-### Step 6: Test Locally
-
-1. **Connect Wallet**: Click "Connect Wallet" and select your imported account
-2. **Create Market**:
-   - Go to "Create Market"
-   - Fill in details (resolution date can be 1 minute from now for testing)
-   - Select "ETH" as token
-   - Submit transaction
-3. **Place Bet**:
-   - Go to "Markets"
-   - Click on your market
-   - Select outcome and enter amount (e.g., 0.01 ETH)
-   - Place bet
-4. **Test Position Trading**:
-   - Go to "Portfolio"
-   - List a position for sale
-   - Switch accounts in MetaMask
-   - Buy the position from "Marketplace"
-
-**Note**: For localhost testing, you can use Hardhat's time manipulation:
-```bash
-# In Terminal 2
-npx hardhat console --network localhost
-> await network.provider.send("evm_increaseTime", [3600]) // Fast forward 1 hour
-> await network.provider.send("evm_mine") // Mine a block
-```
-
----
-
-## 🌐 Sepolia Testnet Deployment
-
-### Step 1: Get Sepolia ETH
-
-Get free Sepolia ETH from faucets:
-- https://sepoliafaucet.com/
-- https://www.alchemy.com/faucets/ethereum-sepolia
-
-You'll need ~0.02 ETH for deployment and testing.
-
----
-
-### Step 2: Configure Environment
-
-Create `contracts/.env`:
-
-```env
-SEPOLIA_RPC_URL=https://eth-sepolia.g.alchemy.com/v2/YOUR_ALCHEMY_KEY
-PRIVATE_KEY=your_wallet_private_key_here
-ETHERSCAN_API_KEY=your_etherscan_api_key_here
-```
-
-**Get API Keys:**
-- **Alchemy RPC**: https://dashboard.alchemy.com/
-- **Etherscan API**: https://etherscan.io/myapikey
-
-**Get Private Key from MetaMask:**
-1. Click account menu → Account details
-2. Click "Show private key"
-3. Enter password and copy key
-4. ⚠️ **NEVER** commit this to git!
-
----
-
-### Step 3: Deploy to Sepolia
-
-```bash
-cd contracts
-npx hardhat run scripts/deploy.ts --network sepolia
-```
-
-**Expected Output:**
-```
-Deploying contracts...
-ReputationSystem deployed to: 0xABC123...
-PredictionMarket deployed to: 0xDEF456...
-Mock USDC deployed to: 0x789GHI...
-
-Verifying on Etherscan...
-✅ All contracts verified
-```
-
-**Copy the addresses** displayed.
-
----
-
-### Step 4: Configure Frontend for Sepolia
-
-Update `.env.local` in root folder:
-
-```env
-NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID=your_project_id_here
-
-# Contract Addresses (from Sepolia deployment)
-NEXT_PUBLIC_PREDICTION_MARKET_ADDRESS=0xDEF456...
-NEXT_PUBLIC_REPUTATION_SYSTEM_ADDRESS=0xABC123...
-NEXT_PUBLIC_MOCK_USDC_ADDRESS=0x789GHI...
-
-# Sepolia Network
-NEXT_PUBLIC_CHAIN_ID=11155111
-NEXT_PUBLIC_RPC_URL=https://eth-sepolia.g.alchemy.com/v2/YOUR_KEY
-```
-
----
-
-### Step 5: Update Contract ABIs
-
-After deployment, copy the latest ABIs to the frontend:
-
-```bash
-cd contracts
-cp artifacts/contracts/PredictionMarket.sol/PredictionMarket.json ../lib/contracts/abis/
-cp artifacts/contracts/ReputationSystem.sol/ReputationSystem.json ../lib/contracts/abis/
-cp artifacts/contracts/MockERC20.sol/MockERC20.json ../lib/contracts/abis/
-```
-
----
-
-### Step 6: Start Frontend
-
-```bash
-npm run dev
-```
-
-Open [http://localhost:3000](http://localhost:3000)
-
-Make sure MetaMask is connected to **Sepolia** network.
-
----
-
-## 🧪 Testing
-
-### Quick Unit Tests
-
-```bash
-cd contracts
+# Run all assessment tests
 npx hardhat test
 ```
 
-**Expected Output:**
+### Expected Output
+
 ```
-  PredictionMarket
-    ✔ Should create a market
-    ✔ Should place a bet and claim winnings
+  World Cup on-chain betting (assessment scenarios)
+    ✔ Scenario A: group-stage match with three outcomes (1X2)
+    ✔ Scenario B: knockout yes/no market — winner receives net payout after platform fee
+    ✔ Scenario C: oracle cannot resolve before kickoff window closes
+    ✔ Scenario D: random fan cannot resolve the match
+    ✔ Scenario E: no new stakes after the official resolution timestamp
+    ✔ Scenario F: slippage guard rejects bets when minShares is too high
+    ✔ Scenario G: secondary market — ticket buyer collects if seller picked the winner
+    ✔ Scenario H: stablecoin pool — same lifecycle using ERC20 collateral
+    ✔ Scenario I: losing side can settle to record reputation without double-claim
 
-  2 passing (XXXms)
+  9 passing
 ```
-
----
-
-### Comprehensive Integration Test (Sepolia)
-
-This test covers **all features** including the 7 bug fixes.
-
-#### Prerequisites:
-1. Contracts deployed to Sepolia
-2. Have contract addresses
-
-#### Set Environment Variables:
-
-```bash
-cd contracts
-export REPUTATION_ADDRESS=0xABC123...
-export MARKET_ADDRESS=0xDEF456...
-export USDC_ADDRESS=0x789GHI...
-```
-
-Or add to `contracts/.env`:
-```env
-REPUTATION_ADDRESS=0xABC123...
-MARKET_ADDRESS=0xDEF456...
-USDC_ADDRESS=0x789GHI...
-```
-
-#### Run Test:
-
-```bash
-npx hardhat run scripts/test-all.ts --network sepolia
-```
-
-**What It Tests:**
-- ✅ Binary & Multi-outcome Markets (ETH & USDC)
-- ✅ Betting with Slippage Protection
-- ✅ Position Listing, Canceling, and Trading
-- ✅ ERC20 Position Trading
-- ✅ Market Resolution & Claims
-- ✅ Reputation System Updates
-- ✅ Fee Collection & Withdrawal
-- ✅ All 7 Bug Fixes Applied
-
 
 ---
 
 ## 📁 Project Structure
 
 ```
-prediction-markets/
-├── contracts/               # Smart contracts
-│   ├── contracts/          # Solidity files
-│   │   ├── PredictionMarket.sol
-│   │   ├── ReputationSystem.sol
-│   │   └── MockERC20.sol
-│   ├── scripts/            # Deployment & test scripts
-│   ├── test/               # Unit tests
-│   └── hardhat.config.ts   # Hardhat configuration
-├── app/                    # Next.js pages (App Router)
-│   ├── page.tsx           # Home page
-│   ├── markets/           # Market pages
-│   ├── create/            # Create market page
-│   ├── portfolio/         # User portfolio
-│   └── marketplace/       # Position trading
-├── components/            # React components
-│   ├── ui/               # UI primitives
-│   └── ...               # Feature components
-├── lib/                  # Libraries & utilities
-│   ├── hooks/           # Wagmi hooks
-│   ├── contracts/       # Contract addresses & ABIs
-│   └── utils/           # Helper functions
-├── docs/                # Documentation
-└── .env.local          # Environment variables (create this)
+worldcup-betting-assessment/
+├── WorldCupBetting.sol              # ← Main contract (root copy for easy review)
+├── README.md                        # This file
+├── IMPLEMENTATION_NOTES.md          # Design decisions & assumptions
+├── ARCHITECTURE.md                  # Full architecture documentation
+├── SUBMISSION.md                    # Assessment submission checklist
+├── LICENSE
+│
+├── contracts/                       # Hardhat project
+│   ├── contracts/                   # Solidity source files
+│   │   ├── WorldCupBetting.sol      #   Assessment contract (canonical)
+│   │   ├── PredictionMarket.sol     #   Reference/production contract
+│   │   ├── ReputationSystem.sol     #   Reputation tracking
+│   │   └── MockERC20.sol            #   Test ERC-20 token
+│   ├── test/                        # Test suites
+│   │   ├── WorldCupBetting.assessment.test.ts   # 9 assessment scenarios
+│   │   └── PredictionMarket.test.ts             # Reference contract tests
+│   ├── scripts/                     # Deployment & utility scripts
+│   │   ├── deploy-worldcup.ts       #   Deploy WorldCupBetting + Reputation
+│   │   ├── deploy.ts                #   Deploy PredictionMarket stack
+│   │   └── test-all.ts              #   Integration test script
+│   ├── hardhat.config.ts            # Hardhat configuration
+│   ├── package.json                 # Contract dependencies
+│   └── .env.example                 # Environment variable template
+│
+├── assessment/                      # Assessment instructions (provided)
+│   └── instructions.md
+│
+└── docs/                            # Extended documentation
+    ├── 01-overview.md
+    ├── 02-smart-contracts.md
+    ├── ...
+    └── TESTING.md
 ```
 
 ---
 
-## 🔧 Common Issues & Solutions
+## 🔒 Security Features
 
-### Local Development Issues
-
-**Issue**: "Cannot connect to localhost:8545"
-- **Solution**: Make sure `npx hardhat node` is running in Terminal 1
-
-**Issue**: "Nonce too high" error
-- **Solution**: Reset MetaMask account:
-  - Settings → Advanced → Clear activity tab data
-
-**Issue**: "Insufficient funds"
-- **Solution**: Make sure you imported an account from `npx hardhat node` output
+- **ReentrancyGuard** — All state-changing functions that transfer funds are protected against reentrancy attacks (OpenZeppelin).
+- **Checks-Effects-Interactions** — State mutations occur before external calls in `claimWinnings` and `buyPosition`.
+- **Access Control** — `onlyOwner` for `createMarket` and `withdrawFees`; per-market arbitrator for `resolveMarket`.
+- **Time Gating** — Bets rejected at or after `resolutionTime`; resolution rejected before `resolutionTime`.
+- **Slippage Protection** — `_minShares` parameter prevents front-running on bet placement.
+- **Scaled Math** — `payoutPerShare` uses `1e18` scaling to preserve precision during integer division.
+- **No Double Claims** — `claimed` flag on each bet prevents re-entrancy via repeated `claimWinnings` calls.
 
 ---
 
-### Sepolia Issues
+## 🧪 Test Coverage
 
-**Issue**: "Insufficient funds for gas"
-- **Solution**: Get more Sepolia ETH from faucets
-
-**Issue**: "Contract not found"
-- **Solution**:
-  1. Check contract addresses in `.env.local`
-  2. Make sure you're on Sepolia network in MetaMask
-  3. Verify contracts deployed successfully
-
-**Issue**: "Transaction underpriced"
-- **Solution**: Wait a moment and retry (gas price fluctuation)
-
-**Issue**: Frontend not showing updates
-- **Solution**:
-  ```bash
-  rm -rf .next
-  npm run build
-  npm run dev
-  ```
+| Category | Coverage |
+|---|---|
+| Market lifecycle (create → bet → resolve → claim) | ✅ |
+| Fee accounting (2% deduction + owner withdrawal) | ✅ |
+| Time-based access control | ✅ |
+| Role-based access control (arbitrator / owner) | ✅ |
+| Slippage protection | ✅ |
+| Secondary market (list → buy → claim) | ✅ |
+| ERC-20 collateral flow | ✅ |
+| Edge cases (loser claim, double-claim revert) | ✅ |
 
 ---
 
-**Happy Predicting! 🎯**
+## 🚢 Deployment to Sepolia
+
+```bash
+# 1. Configure environment
+cp contracts/.env.example contracts/.env
+# Edit contracts/.env with your keys:
+#   SEPOLIA_RPC_URL=https://eth-sepolia.g.alchemy.com/v2/YOUR_KEY
+#   PRIVATE_KEY=your_wallet_private_key
+#   ETHERSCAN_API_KEY=your_etherscan_api_key
+
+# 2. Deploy
+cd contracts
+npx hardhat run scripts/deploy-worldcup.ts --network sepolia
+
+# 3. Verify on Etherscan
+npx hardhat verify --network sepolia <CONTRACT_ADDRESS> <REPUTATION_ADDRESS>
+```
+
+---
+
+## 🏗️ Tech Stack
+
+| Layer | Technology |
+|---|---|
+| Smart Contracts | Solidity 0.8.30, OpenZeppelin 5.x |
+| Dev Framework | Hardhat 2.x |
+| Testing | Mocha, Chai, Hardhat Network Helpers |
+| Language | TypeScript |
+
+---
+
+## 📬 Contact
+
+- **Candidate**: *Your Name*
+- **Email**: *your.email@example.com*
+- **GitHub**: [Radioactivegeek](https://github.com/Radioactivegeek)
+
+---
+
+*Built as part of the Smart Contract Engineer assessment.*

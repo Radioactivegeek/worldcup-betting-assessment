@@ -1,0 +1,45 @@
+# Dependencies
+node_modules/
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+npm-debug.log*
+
+# Build / Coverage
+coverage/
+coverage.json
+dist/
+build/
+
+# Hardhat
+artifacts/
+cache/
+typechain/
+typechain-types/
+
+# Next.js
+.next/
+out/
+
+# Keys
+*.pem
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Misc
+*.tgz
+.nyc_output/
+*.tsbuildinfo
