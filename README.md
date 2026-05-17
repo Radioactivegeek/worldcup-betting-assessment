@@ -39,11 +39,10 @@ This repository contains the implementation of `WorldCupBetting.sol` — a smart
 | Detail | Value |
 |---|---|
 | **Network** | Sepolia Testnet |
-| **Contract Address** | `<PASTE_ADDRESS_HERE>` |
-| **Etherscan** | [`View on Etherscan`](https://sepolia.etherscan.io/address/<PASTE_ADDRESS_HERE>) |
+| **Contract Address** | `0x01Bb2aB743B08eAee5b9Ed393bD6626Faa7b9b48` |
+| **Etherscan** | [`View on Etherscan`](https://sepolia.etherscan.io/address/0x01Bb2aB743B08eAee5b9Ed393bD6626Faa7b9b48) |
 | **Solidity Version** | `0.8.30` |
 
-> ⚠️ Replace `<PASTE_ADDRESS_HERE>` with the actual deployed contract address.
 
 ---
 
@@ -191,8 +190,8 @@ npx hardhat verify --network sepolia <CONTRACT_ADDRESS> <REPUTATION_ADDRESS>
 
 ## 📬 Contact
 
-- **Candidate**: *Your Name*
-- **Email**: *your.email@example.com*
+- **Candidate**: Harisingh Chad
+- **Email**: chadharish21@gmail.com
 - **GitHub**: [Radioactivegeek](https://github.com/Radioactivegeek)
 
 ---

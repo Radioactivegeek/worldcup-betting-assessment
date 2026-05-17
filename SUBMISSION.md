@@ -3,8 +3,8 @@
 ## Assessment Deliverables
 
 - [x] **All 9 tests passing** — `npx hardhat test` in `contracts/` exits with 0 failures
-- [x] **Contract deployed to Sepolia** — Address: `<PASTE_ADDRESS_HERE>`
-- [x] **Contract verified on Etherscan** — [View on Sepolia Etherscan](https://sepolia.etherscan.io/address/<PASTE_ADDRESS_HERE>)
+- [x] **Contract deployed to Sepolia** — Address: `0x01Bb2aB743B08eAee5b9Ed393bD6626Faa7b9b48`
+- [x] **Contract verified on Etherscan** — [View on Sepolia Etherscan](https://sepolia.etherscan.io/address/0x01Bb2aB743B08eAee5b9Ed393bD6626Faa7b9b48)
 - [x] **Repository URL** — `https://github.com/Radioactivegeek/worldcup-betting-assessment`
 - [x] **IMPLEMENTATION_NOTES.md completed** — Design decisions, fee flow, ownership transfer, security measures
 - [x] **README.md professional and complete** — Quick start, scenarios, structure, deployment guide
@@ -53,6 +53,3 @@
 | `README.md` | Professional project overview |
 | `SUBMISSION.md` | This checklist |
 
----
-
-> ⚠️ **Remember**: Replace `<PASTE_ADDRESS_HERE>` with the actual Sepolia contract address before final submission.
