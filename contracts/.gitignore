@@ -1,7 +1,16 @@
 node_modules
 .env
+.env.local
+*.log
 coverage
 coverage.json
+coverage/
+.nyc_output/
+*.tgz
+.DS_Store
+dist/
+build/
+*.pem
 typechain
 typechain-types
 
